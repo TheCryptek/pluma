@@ -153,73 +153,48 @@ pluma_utils_menu_position_under_widget (GtkMenu  *menu,
 }
 
 void
-pluma_utils_menu_position_under_tree_view (GtkMenu  *menu,
-					   gint     *x,
-					   gint     *y,
-					   gboolean *push_in,
-					   gpointer  user_data)
+menu_popup_at_treeview_selection (GtkWidget *menu,
+				  GtkWidget *treeview)
 {
-	GtkTreeView *tree = GTK_TREE_VIEW (user_data);
-	GtkTreeModel *model;
-	GtkTreeSelection *selection;
-	GtkTreeIter iter;
-	
-	model = gtk_tree_view_get_model (tree);
-	g_return_if_fail (model != NULL);
+	GtkTreePath *path;
+	GtkTreeViewColumn *column;
+	GdkWindow *bin_window;
+	GdkRectangle rect;
 
-	selection = gtk_tree_view_get_selection (tree);
-	g_return_if_fail (selection != NULL);
+	gtk_tree_view_get_cursor (GTK_TREE_VIEW (treeview), &path, &column);
+	g_return_if_fail (path != NULL);
 
-	if (gtk_tree_selection_get_selected (selection, NULL, &iter))
-	{
-		GtkTreePath *path;
-		GdkRectangle rect;
+	if (column == NULL)
+		column = gtk_tree_view_get_column (GTK_TREE_VIEW (treeview), 0);
 
-		widget_get_origin (GTK_WIDGET (tree), x, y);
-			
-		path = gtk_tree_model_get_path (model, &iter);
-		gtk_tree_view_get_cell_area (tree, path,
-					     gtk_tree_view_get_column (tree, 0), /* FIXME 0 for RTL ? */
-					     &rect);
-		gtk_tree_path_free (path);
-		
-		*x += rect.x;
-		*y += rect.y + rect.height;
-		
-		if (gtk_widget_get_direction (GTK_WIDGET (tree)) == GTK_TEXT_DIR_RTL)
-		{
-			GtkRequisition requisition;
-			gtk_widget_get_preferred_size (GTK_WIDGET (menu), NULL, &requisition);
-			*x += rect.width - requisition.width;
-		}
-	}
-	else
-	{
-		/* no selection -> regular "under widget" positioning */
-		pluma_utils_menu_position_under_widget (menu,
-							x, y, push_in,
-							tree);
-	}
+	bin_window = gtk_tree_view_get_bin_window (GTK_TREE_VIEW (treeview));
+	gtk_tree_view_get_cell_area (GTK_TREE_VIEW (treeview), path, column, &rect);
+
+	gtk_menu_popup_at_rect (GTK_MENU (menu), bin_window, &rect,
+				GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST,
+				NULL);
+
+	gtk_tree_path_free(path);
 }
 
 /**
- * pluma_gtk_button_new_with_stock_icon:
+ * pluma_gtk_button_new_with_icon:
  * @label:
- * @stock_id:
+ * @icon_name:
  *
  * Returns: (transfer full):
  */
 
 GtkWidget *
-pluma_gtk_button_new_with_stock_icon (const gchar *label,
-				      const gchar *stock_id)
+pluma_gtk_button_new_with_icon (const gchar *label,
+				const gchar *icon_name)
 {
 	GtkWidget *button;
 
 	button = gtk_button_new_with_mnemonic (label);
 	gtk_button_set_image (GTK_BUTTON (button),
-			      gtk_image_new_from_stock (stock_id,
-							GTK_ICON_SIZE_BUTTON));
+			      gtk_image_new_from_icon_name (icon_name,
+							    GTK_ICON_SIZE_BUTTON));
 
         return button;
 }
@@ -228,7 +203,7 @@ pluma_gtk_button_new_with_stock_icon (const gchar *label,
  * pluma_dialog_add_button:
  * @dialog:
  * @text:
- * @stock_id:
+ * @icon_name:
  * @response_id:
  *
  * Returns: (transfer none):
@@ -236,16 +211,16 @@ pluma_gtk_button_new_with_stock_icon (const gchar *label,
 GtkWidget *
 pluma_dialog_add_button (GtkDialog   *dialog,
 			 const gchar *text,
-			 const gchar *stock_id,
+			 const gchar *icon_name,
 			 gint         response_id)
 {
 	GtkWidget *button;
 
 	g_return_val_if_fail (GTK_IS_DIALOG (dialog), NULL);
 	g_return_val_if_fail (text != NULL, NULL);
-	g_return_val_if_fail (stock_id != NULL, NULL);
+	g_return_val_if_fail (icon_name != NULL, NULL);
 
-	button = pluma_gtk_button_new_with_stock_icon (text, stock_id);
+	button = pluma_gtk_button_new_with_icon (text, icon_name);
 	g_return_val_if_fail (button != NULL, NULL);
 
 	gtk_widget_set_can_default (button, TRUE);
@@ -1697,4 +1672,28 @@ free_resources:
 	g_match_info_free (match_info);
 	g_regex_unref (regex);
 	return found;
+}
+
+GtkWidget *
+pluma_image_menu_item_new_from_pixbuf (GdkPixbuf   *icon_pixbuf,
+				       const gchar *label_name)
+{
+	GtkWidget *icon;
+	GtkWidget *box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+
+	if (icon_pixbuf)
+		icon = gtk_image_new_from_pixbuf (icon_pixbuf);
+	else
+		icon = gtk_image_new ();
+
+	GtkWidget *label_menu = gtk_label_new (g_strconcat (label_name, "     ", NULL));
+	GtkWidget *menuitem = gtk_menu_item_new ();
+
+	gtk_container_add (GTK_CONTAINER (box), icon);
+	gtk_container_add (GTK_CONTAINER (box), label_menu);
+
+	gtk_container_add (GTK_CONTAINER (menuitem), box);
+	gtk_widget_show_all (menuitem);
+
+	return menuitem;
 }

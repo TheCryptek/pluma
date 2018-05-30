@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.20.2 -->
 <!--*- mode: xml -*-->
 <interface>
+  <requires lib="gtk+" version="3.22"/>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">help-browser</property>
+  </object>
+  <object class="GtkImage" id="image2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">process-stop</property>
+  </object>
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">gtk-ok</property>
+  </object>
   <object class="GtkDialog" id="spell_dialog">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">_Configure Spell Checker plugin...</property>
@@ -10,6 +27,7 @@
       <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">8</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="dialog-action_area1">
@@ -18,12 +36,13 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button1">
-                <property name="label">gtk-help</property>
+                <property name="label" translatable="yes">_Help</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="image">image1</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -33,12 +52,13 @@
             </child>
             <child>
               <object class="GtkButton" id="button3">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="image">image2</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -48,12 +68,13 @@
             </child>
             <child>
               <object class="GtkButton" id="button4">
-                <property name="label">gtk-ok</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="image">image3</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -70,7 +91,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkVBox" id="spell_dialog_content">
+          <object class="GtkBox" id="spell_dialog_content">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
@@ -78,8 +99,8 @@
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="label" translatable="yes">Autocheck spelling on document load...</property>
-                <property name="xalign">0</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
@@ -96,8 +117,8 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
+                <property name="halign">start</property>
                 <property name="use_underline">True</property>
-                <property name="xalign">0</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
               </object>
@@ -113,8 +134,8 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
+                <property name="halign">start</property>
                 <property name="use_underline">True</property>
-                <property name="xalign">0</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
                 <property name="group">autocheck_never</property>
@@ -131,8 +152,8 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
+                <property name="halign">start</property>
                 <property name="use_underline">True</property>
-                <property name="xalign">0</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
                 <property name="group">autocheck_never</property>

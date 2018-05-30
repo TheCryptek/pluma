@@ -265,6 +265,7 @@ pluma_tab_label_init (PlumaTabLabel *tab_label)
 	                                GTK_ORIENTATION_HORIZONTAL);
 
 	ebox = gtk_event_box_new ();
+	gtk_widget_add_events (ebox, GDK_SCROLL_MASK);
 	gtk_event_box_set_visible_window (GTK_EVENT_BOX (ebox), FALSE);
 	gtk_box_pack_start (GTK_BOX (tab_label), ebox, TRUE, TRUE, 0);
 	tab_label->priv->ebox = ebox;
@@ -273,6 +274,7 @@ pluma_tab_label_init (PlumaTabLabel *tab_label)
 	gtk_container_add (GTK_CONTAINER (ebox), hbox);
 
 	close_button = pluma_close_button_new ();
+	gtk_widget_add_events (close_button, GDK_SCROLL_MASK);
 	gtk_widget_set_tooltip_text (close_button, _("Close document"));
 	gtk_box_pack_start (GTK_BOX (tab_label), close_button, FALSE, FALSE, 0);
 	tab_label->priv->close_button = close_button;
@@ -281,7 +283,7 @@ pluma_tab_label_init (PlumaTabLabel *tab_label)
 			  "clicked",
 			  G_CALLBACK (close_button_clicked_cb),
 			  tab_label);
-
+			  
 	spinner = gtk_spinner_new ();
 	gtk_box_pack_start (GTK_BOX (hbox), spinner, FALSE, FALSE, 0);
 	tab_label->priv->spinner = spinner;
@@ -292,11 +294,7 @@ pluma_tab_label_init (PlumaTabLabel *tab_label)
 	tab_label->priv->icon = icon;
 
 	label = gtk_label_new ("");
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-#endif
 	gtk_widget_set_margin_start (label, 0);
 	gtk_widget_set_margin_end (label, 0);
 	gtk_widget_set_margin_top (label, 0);

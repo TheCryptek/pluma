@@ -646,6 +646,35 @@ pluma_view_scroll_to_cursor (PlumaView *view)
 				      0.0);
 }
 
+static void
+pluma_override_font (GtkWidget   *widget,
+		     const gchar *font)
+{
+	gchar          *css;
+	GtkCssProvider *provider;
+	gchar          *tempsize;
+
+	provider = gtk_css_provider_new ();
+	tempsize = g_strdup (font);
+
+	g_strreverse (tempsize);
+	g_strcanon (tempsize, "1234567890", '\0');
+	g_strreverse (tempsize);
+
+	gchar tempfont [strlen (font)];
+	strcpy (tempfont, font);
+	tempfont [strlen (font) - strlen (tempsize)] = 0;
+
+	css = g_strdup_printf ("textview { font-family: %s; font-size: %spt; }", tempfont, tempsize);
+	gtk_css_provider_load_from_data (provider, css, -1, NULL);
+	g_free (css);
+
+	gtk_style_context_add_provider (gtk_widget_get_style_context (widget),
+					GTK_STYLE_PROVIDER (provider),
+					GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	g_object_unref (provider);
+}
+
 /* FIXME this is an issue for introspection */
 /**
  * pluma_view_set_font:
@@ -684,7 +713,7 @@ pluma_view_set_font (PlumaView   *view,
 
 	g_return_if_fail (font_desc != NULL);
 
-	gtk_widget_override_font (GTK_WIDGET (view), font_desc);
+	pluma_override_font (GTK_WIDGET (view), pango_font_description_to_string (font_desc));
 
 	pango_font_description_free (font_desc);		
 }
@@ -1985,18 +2014,22 @@ show_line_numbers_menu (GtkWidget      *view,
 
 	menu = create_line_numbers_menu (view);
 
-	gtk_menu_popup (GTK_MENU (menu), 
-			NULL, 
-			NULL,
-			NULL, 
-			NULL,
-			event->button, 
-			event->time);
+	gtk_menu_popup_at_pointer (GTK_MENU (menu), NULL);
 }
 
 static gboolean
 pluma_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
+	if ((event->type == GDK_BUTTON_PRESS) && 
+	    (event->window == gtk_text_view_get_window (GTK_TEXT_VIEW (widget),
+						        GTK_TEXT_WINDOW_LEFT)))
+	{
+		if (event->button == 3)
+			show_line_numbers_menu (widget, event);
+
+		return TRUE;
+	}
+
 	if ((event->button == 2) || (event->button == 3))
 	{
 		if (middle_or_right_down)
@@ -2006,19 +2039,6 @@ pluma_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
 		}
 		else
 			middle_or_right_down = TRUE;
-	}
-
-	if ((event->type == GDK_BUTTON_PRESS) && 
-	    (event->window == gtk_text_view_get_window (GTK_TEXT_VIEW (widget),
-						        GTK_TEXT_WINDOW_LEFT)))
-	{
-		if (event->button == 3)
-		{
-			show_line_numbers_menu (widget, event);
-			return TRUE;
-		}
-		else if (event->button == 2)
-			return TRUE;
 	}
 
 	if ((event->type == GDK_2BUTTON_PRESS) && (event->button == 1) &&

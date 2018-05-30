@@ -574,7 +574,7 @@ on_selection_changed_cb (GtkTreeSelection *selection,
 
 static GtkActionEntry extra_actions[] =
 {
-	{"SetActiveRoot", GTK_STOCK_JUMP_TO, N_("_Set root to active document"),
+	{"SetActiveRoot", "go-jump", N_("_Set root to active document"),
 	 NULL,
 	 N_("Set the root to the active document location"),
 	 G_CALLBACK (on_action_set_active_root)}
@@ -717,7 +717,7 @@ pluma_file_browser_plugin_activate (PeasActivatable *activatable)
 		image = gtk_image_new_from_pixbuf(pixbuf);
 		g_object_unref(pixbuf);
 	} else {
-		image = gtk_image_new_from_stock(GTK_STOCK_INDEX, GTK_ICON_SIZE_MENU);
+		image = gtk_image_new_from_icon_name("gtk-index", GTK_ICON_SIZE_MENU);
 	}
 
 	gtk_widget_show(image);
@@ -1140,9 +1140,7 @@ on_confirm_no_trash_cb (PlumaFileBrowserWidget * widget,
 	result = pluma_file_browser_utils_confirmation_dialog (window,
 	                                                       GTK_MESSAGE_QUESTION,
 	                                                       message,
-	                                                       secondary,
-	                                                       GTK_STOCK_DELETE,
-	                                                       NULL);
+	                                                       secondary);
 	g_free (secondary);
 
 	return result;
@@ -1175,9 +1173,7 @@ on_confirm_delete_cb (PlumaFileBrowserWidget *widget,
 	result = pluma_file_browser_utils_confirmation_dialog (PLUMA_WINDOW (data->window),
 	                                                       GTK_MESSAGE_QUESTION,
 	                                                       message,
-	                                                       secondary,
-	                                                       GTK_STOCK_DELETE,
-	                                                       NULL);
+	                                                       secondary);
 
 	g_free (message);
 

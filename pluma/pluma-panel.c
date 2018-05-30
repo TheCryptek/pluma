@@ -493,11 +493,7 @@ build_vertical_panel (PlumaPanel *panel)
 			    0);	
 
 	panel->priv->title_label = gtk_label_new (_("Empty"));
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (panel->priv->title_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (panel->priv->title_label), 0, 0.5);
-#endif
 	gtk_label_set_ellipsize(GTK_LABEL (panel->priv->title_label), PANGO_ELLIPSIZE_END);
 
 	gtk_box_pack_start (GTK_BOX (icon_name_hbox),
@@ -594,12 +590,8 @@ build_tab_label (PlumaPanel  *panel,
 	gtk_box_pack_start (GTK_BOX (label_hbox), icon, FALSE, FALSE, 0);
 
 	/* setup label */
-        label = gtk_label_new (name);
-#if GTK_CHECK_VERSION (3, 16, 0)
+	label = gtk_label_new (name);
 	gtk_label_set_xalign (GTK_LABEL (label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-#endif
 	gtk_widget_set_margin_start (label, 0);
 	gtk_widget_set_margin_end (label, 0);
 	gtk_widget_set_margin_top (label, 0);
@@ -669,11 +661,7 @@ pluma_panel_add_item (PlumaPanel  *panel,
 	tab_label = build_tab_label (panel, item, data->name, data->icon);
 
 	menu_label = gtk_label_new (name);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (menu_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (menu_label), 0.0, 0.5);
-#endif
 
 	if (!gtk_widget_get_visible (item))
 		gtk_widget_show (item);
@@ -687,19 +675,19 @@ pluma_panel_add_item (PlumaPanel  *panel,
 }
 
 /**
- * pluma_panel_add_item_with_stock_icon:
+ * pluma_panel_add_item_with_icon:
  * @panel: a #PlumaPanel
  * @item: the #GtkWidget to add to the @panel
  * @name: the name to be shown in the @panel
- * @stock_id: a stock id
+ * @icon_name: a icon name
  *
- * Same as pluma_panel_add_item() but using an image from stock.
+ * Same as pluma_panel_add_item() but using an image from icon name.
  */
 void
-pluma_panel_add_item_with_stock_icon (PlumaPanel  *panel, 
-				      GtkWidget   *item, 
-				      const gchar *name,
-				      const gchar *icon_name)
+pluma_panel_add_item_with_icon (PlumaPanel  *panel, 
+				GtkWidget   *item, 
+				const gchar *name,
+				const gchar *icon_name)
 {
 	GtkWidget *icon = NULL;
 

@@ -802,30 +802,30 @@ static const GtkActionEntry tree_actions_selection[] =
 	{"FileMoveToTrash", "mate-stock-trash", N_("_Move to Trash"), NULL,
 	 N_("Move selected file or folder to trash"),
 	 G_CALLBACK (on_action_file_move_to_trash)},
-	{"FileDelete", GTK_STOCK_DELETE, N_("_Delete"), NULL,
+	{"FileDelete", "edit-delete", N_("_Delete"), NULL,
 	 N_("Delete selected file or folder"),
 	 G_CALLBACK (on_action_file_delete)}
 };
 
 static const GtkActionEntry tree_actions_file_selection[] =
 {
-	{"FileOpen", GTK_STOCK_OPEN, NULL, NULL,
+	{"FileOpen", "document-open", N_("_Open"), NULL,
 	 N_("Open selected file"),
 	 G_CALLBACK (on_action_file_open)}
 };
 
 static const GtkActionEntry tree_actions[] =
 {
-	{"DirectoryUp", GTK_STOCK_GO_UP, N_("Up"), NULL,
+	{"DirectoryUp", "go-up", N_("Up"), NULL,
 	 N_("Open the parent folder"), G_CALLBACK (on_action_directory_up)}
 };
 
 static const GtkActionEntry tree_actions_single_most_selection[] =
 {
-	{"DirectoryNew", GTK_STOCK_ADD, N_("_New Folder"), NULL,
+	{"DirectoryNew", "list-add", N_("_New Folder"), NULL,
 	 N_("Add new empty folder"),
 	 G_CALLBACK (on_action_directory_new)},
-	{"FileNew", GTK_STOCK_NEW, N_("New F_ile"), NULL,
+	{"FileNew", "document-new", N_("New F_ile"), NULL,
 	 N_("Add new empty file"), G_CALLBACK (on_action_file_new)}
 };
 
@@ -838,22 +838,22 @@ static const GtkActionEntry tree_actions_single_selection[] =
 
 static const GtkActionEntry tree_actions_sensitive[] = 
 {
-	{"DirectoryPrevious", GTK_STOCK_GO_BACK, N_("_Previous Location"),
+	{"DirectoryPrevious", "go-previous", N_("_Previous Location"),
 	 NULL,
 	 N_("Go to the previous visited location"),
 	 G_CALLBACK (on_action_directory_previous)},
-	{"DirectoryNext", GTK_STOCK_GO_FORWARD, N_("_Next Location"), NULL,
+	{"DirectoryNext", "go-next", N_("_Next Location"), NULL,
 	 N_("Go to the next visited location"), G_CALLBACK (on_action_directory_next)},
-	{"DirectoryRefresh", GTK_STOCK_REFRESH, N_("Re_fresh View"), NULL,
+	{"DirectoryRefresh", "view-refresh", N_("Re_fresh View"), NULL,
 	 N_("Refresh the view"), G_CALLBACK (on_action_directory_refresh)},
-	{"DirectoryOpen", GTK_STOCK_OPEN, N_("_View Folder"), NULL,
+	{"DirectoryOpen", "document-open", N_("_View Folder"), NULL,
 	 N_("View folder in file manager"),
 	 G_CALLBACK (on_action_directory_open)}
 };
 
 static const GtkToggleActionEntry tree_actions_toggle[] = 
 {
-	{"FilterHidden", GTK_STOCK_DIALOG_AUTHENTICATION,
+	{"FilterHidden", "dialog-password",
 	 N_("Show _Hidden"), NULL,
 	 N_("Show hidden files and folders"),
 	 G_CALLBACK (on_action_filter_hidden), FALSE},
@@ -864,7 +864,7 @@ static const GtkToggleActionEntry tree_actions_toggle[] =
 
 static const GtkActionEntry bookmark_actions[] =
 {
-	{"BookmarkOpen", GTK_STOCK_OPEN, N_("_View Folder"), NULL,
+	{"BookmarkOpen", "document-open", N_("_View Folder"), NULL,
 	 N_("View folder in file manager"), G_CALLBACK (on_action_bookmark_open)}
 };
 
@@ -984,13 +984,18 @@ create_toolbar (PlumaFileBrowserWidget * obj,
 
 	/* Previous directory menu tool item */
 	obj->priv->location_previous_menu = gtk_menu_new ();
+
+	gtk_menu_set_reserve_toggle_size (GTK_MENU (obj->priv->location_previous_menu), FALSE);
+
 	gtk_widget_show (obj->priv->location_previous_menu);
 
-	widget = GTK_WIDGET (gtk_menu_tool_button_new_from_stock (GTK_STOCK_GO_BACK));
+	widget = GTK_WIDGET (gtk_menu_tool_button_new (gtk_image_new_from_icon_name ("go-previous",
+										     GTK_ICON_SIZE_MENU),
+						       _("Previous location")));
+
 	gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (widget),
 				       obj->priv->location_previous_menu);
 
-	g_object_set (widget, "label", _("Previous location"), NULL);
 	gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (widget),
 					_("Go to previous location"));
 	gtk_menu_tool_button_set_arrow_tooltip_text (GTK_MENU_TOOL_BUTTON (widget),
@@ -1005,13 +1010,18 @@ create_toolbar (PlumaFileBrowserWidget * obj,
 
 	/* Next directory menu tool item */
 	obj->priv->location_next_menu = gtk_menu_new ();
+
+	gtk_menu_set_reserve_toggle_size (GTK_MENU (obj->priv->location_next_menu), FALSE);
+
 	gtk_widget_show (obj->priv->location_next_menu);
 
-	widget = GTK_WIDGET (gtk_menu_tool_button_new_from_stock (GTK_STOCK_GO_FORWARD));
+	widget = GTK_WIDGET (gtk_menu_tool_button_new (gtk_image_new_from_icon_name ("go-next",
+										     GTK_ICON_SIZE_MENU),
+						       _("Next location")));
+
 	gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (widget),
 				       obj->priv->location_next_menu);
 
-	g_object_set (widget, "label", _("Next location"), NULL);
 	gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (widget),
 					_("Go to next location"));
 	gtk_menu_tool_button_set_arrow_tooltip_text (GTK_MENU_TOOL_BUTTON (widget),
@@ -1365,13 +1375,9 @@ popup_menu (PlumaFileBrowserWidget * obj, GdkEventButton * event, GtkTreeModel *
 			}
 		}
 
-		gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL,
-				event->button, event->time);
+		gtk_menu_popup_at_pointer (GTK_MENU (menu), NULL);
 	} else {
-		gtk_menu_popup (GTK_MENU (menu), NULL, NULL,
-				pluma_utils_menu_position_under_tree_view,
-				obj->priv->treeview, 0,
-				gtk_get_current_event_time ());
+		menu_popup_at_treeview_selection (menu, GTK_WIDGET (obj->priv->treeview));
 		gtk_menu_shell_select_first (GTK_MENU_SHELL (menu), FALSE);
 	}
 
@@ -1528,7 +1534,6 @@ create_goto_menu_item (PlumaFileBrowserWidget * obj, GList * item,
 		       GdkPixbuf * icon)
 {
 	GtkWidget *result;
-	GtkWidget *image;
 	gchar *unescape;
 	GdkPixbuf *pixbuf = NULL;
 	Location *loc;
@@ -1543,14 +1548,8 @@ create_goto_menu_item (PlumaFileBrowserWidget * obj, GList * item,
 	}
 
 	if (pixbuf) {
-		image = gtk_image_new_from_pixbuf (pixbuf);
+		result = pluma_image_menu_item_new_from_pixbuf (pixbuf, unescape);
 		g_object_unref (pixbuf);
-
-		gtk_widget_show (image);
-
-		result = gtk_image_menu_item_new_with_label (unescape);
-		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (result),
-					       image);
 	} else {
 		result = gtk_menu_item_new_with_label (unescape);
 	}
@@ -2473,11 +2472,7 @@ directory_open (PlumaFileBrowserWidget *obj,
 	if (FILE_IS_DIR (flags)) {
 		result = TRUE;
 
-#if GTK_CHECK_VERSION (3, 22, 0)
 		if (!gtk_show_uri_on_window (NULL, uri, GDK_CURRENT_TIME, &error)) {
-#else
-		if (!gtk_show_uri (gtk_widget_get_screen (GTK_WIDGET (obj)), uri, GDK_CURRENT_TIME, &error)) {
-#endif
 			g_signal_emit (obj, signals[ERROR], 0,
 				       PLUMA_FILE_BROWSER_ERROR_OPEN_DIRECTORY,
 				       error->message);

@@ -90,16 +90,16 @@ set_contents (GtkWidget *area,
 }
 
 static void
-info_bar_add_stock_button_with_text (GtkInfoBar  *infobar,
-				     const gchar *text,
-				     const gchar *stock_id,
-				     gint         response_id)
+info_bar_add_icon_button_with_text (GtkInfoBar  *infobar,
+				    const gchar *text,
+				    const gchar *icon_id,
+				    gint         response_id)
 {
 	GtkWidget *button;
 	GtkWidget *image;
 
 	button = gtk_info_bar_add_button (infobar, text, response_id);
-	image = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_BUTTON);
+	image = gtk_image_new_from_icon_name (icon_id, GTK_ICON_SIZE_BUTTON);
 	gtk_button_set_image (GTK_BUTTON (button), image);
 }
 
@@ -133,11 +133,7 @@ set_message_area_text_and_icon (GtkWidget   *message_area,
 	gtk_box_pack_start (GTK_BOX (vbox), primary_label, TRUE, TRUE, 0);
 	gtk_label_set_use_markup (GTK_LABEL (primary_label), TRUE);
 	gtk_label_set_line_wrap (GTK_LABEL (primary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (primary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (primary_label), 0.0, 0.5);
-#endif
 	gtk_widget_set_can_focus (primary_label, TRUE);
 	gtk_label_set_selectable (GTK_LABEL (primary_label), TRUE);
 
@@ -152,11 +148,7 @@ set_message_area_text_and_icon (GtkWidget   *message_area,
 		gtk_label_set_use_markup (GTK_LABEL (secondary_label), TRUE);
 		gtk_label_set_line_wrap (GTK_LABEL (secondary_label), TRUE);
 		gtk_label_set_selectable (GTK_LABEL (secondary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 		gtk_label_set_xalign (GTK_LABEL (secondary_label), 0.0);
-#else
-		gtk_misc_set_alignment (GTK_MISC (secondary_label), 0.0, 0.5);
-#endif
 	}
 
 	gtk_widget_show_all (hbox_content);
@@ -170,9 +162,13 @@ create_io_loading_error_message_area (const gchar *primary_text,
 {
 	GtkWidget *message_area;
 
-	message_area = gtk_info_bar_new_with_buttons (
-					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					NULL);
+	message_area = gtk_info_bar_new ();
+
+	gtk_button_set_image (GTK_BUTTON (gtk_info_bar_add_button (GTK_INFO_BAR (message_area),
+								   _("_Cancel"),
+								   GTK_RESPONSE_CANCEL)),
+			      gtk_image_new_from_icon_name ("process-stop", GTK_ICON_SIZE_BUTTON));
+
 	gtk_info_bar_set_message_type (GTK_INFO_BAR (message_area),
 				       GTK_MESSAGE_ERROR);
 
@@ -183,10 +179,10 @@ create_io_loading_error_message_area (const gchar *primary_text,
 
 	if (recoverable_error)
 	{
-		info_bar_add_stock_button_with_text (GTK_INFO_BAR (message_area),
-						     _("_Retry"),
-						     GTK_STOCK_REFRESH,
-						     GTK_RESPONSE_OK);
+		info_bar_add_icon_button_with_text (GTK_INFO_BAR (message_area),
+						    _("_Retry"),
+						    "view-refresh",
+						    GTK_RESPONSE_OK);
 	}
 
 	return message_area;
@@ -485,10 +481,10 @@ create_conversion_error_message_area (const gchar *primary_text,
 
 	message_area = gtk_info_bar_new ();
 
-	info_bar_add_stock_button_with_text (GTK_INFO_BAR (message_area),
-					     _("_Retry"),
-					     GTK_STOCK_REDO,
-					     GTK_RESPONSE_OK);
+	info_bar_add_icon_button_with_text (GTK_INFO_BAR (message_area),
+					    _("_Retry"),
+					    "edit-redo",
+					    GTK_RESPONSE_OK);
 
 	if (edit_anyway)
 	{
@@ -507,9 +503,11 @@ create_conversion_error_message_area (const gchar *primary_text,
 	}
 	else
 	{
-		gtk_info_bar_add_button (GTK_INFO_BAR (message_area),
-					 GTK_STOCK_CANCEL,
-					 GTK_RESPONSE_CANCEL);
+		gtk_button_set_image (GTK_BUTTON (gtk_info_bar_add_button (GTK_INFO_BAR (message_area),
+									   _("_Cancel"),
+									   GTK_RESPONSE_CANCEL)),
+				      gtk_image_new_from_icon_name ("process-stop", GTK_ICON_SIZE_BUTTON));
+
 		gtk_info_bar_set_message_type (GTK_INFO_BAR (message_area),
 					       GTK_MESSAGE_ERROR);
 	}
@@ -530,11 +528,7 @@ create_conversion_error_message_area (const gchar *primary_text,
 	gtk_box_pack_start (GTK_BOX (vbox), primary_label, TRUE, TRUE, 0);
 	gtk_label_set_use_markup (GTK_LABEL (primary_label), TRUE);
 	gtk_label_set_line_wrap (GTK_LABEL (primary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (primary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (primary_label), 0.0, 0.5);
-#endif
 	gtk_widget_set_can_focus (primary_label, TRUE);
 	gtk_label_set_selectable (GTK_LABEL (primary_label), TRUE);
 
@@ -549,11 +543,7 @@ create_conversion_error_message_area (const gchar *primary_text,
 		gtk_label_set_use_markup (GTK_LABEL (secondary_label), TRUE);
 		gtk_label_set_line_wrap (GTK_LABEL (secondary_label), TRUE);
 		gtk_label_set_selectable (GTK_LABEL (secondary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 		gtk_label_set_xalign (GTK_LABEL (secondary_label), 0.0);
-#else
-		gtk_misc_set_alignment (GTK_MISC (secondary_label), 0.0, 0.5);
-#endif
 	}
 
 	create_combo_box (message_area, vbox);
@@ -808,11 +798,7 @@ pluma_file_already_open_warning_message_area_new (const gchar *uri)
 	gtk_box_pack_start (GTK_BOX (vbox), primary_label, TRUE, TRUE, 0);
 	gtk_label_set_use_markup (GTK_LABEL (primary_label), TRUE);
 	gtk_label_set_line_wrap (GTK_LABEL (primary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (primary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (primary_label), 0.0, 0.5);
-#endif
 	gtk_widget_set_can_focus (primary_label, TRUE);
 	gtk_label_set_selectable (GTK_LABEL (primary_label), TRUE);
 
@@ -827,11 +813,7 @@ pluma_file_already_open_warning_message_area_new (const gchar *uri)
 	gtk_label_set_use_markup (GTK_LABEL (secondary_label), TRUE);
 	gtk_label_set_line_wrap (GTK_LABEL (secondary_label), TRUE);
 	gtk_label_set_selectable (GTK_LABEL (secondary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (secondary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (secondary_label), 0.0, 0.5);
-#endif
 
 	gtk_widget_show_all (hbox_content);
 	set_contents (message_area, hbox_content);
@@ -878,10 +860,10 @@ pluma_externally_modified_saving_error_message_area_new (
 
 	message_area = gtk_info_bar_new ();
 	
-	info_bar_add_stock_button_with_text (GTK_INFO_BAR (message_area),
-					     _("S_ave Anyway"),
-					     GTK_STOCK_SAVE,
-					     GTK_RESPONSE_YES);
+	info_bar_add_icon_button_with_text (GTK_INFO_BAR (message_area),
+					    _("S_ave Anyway"),
+					    "document-save",
+					    GTK_RESPONSE_YES);
 	gtk_info_bar_add_button (GTK_INFO_BAR (message_area),
 				 _("D_on't Save"),
 				 GTK_RESPONSE_CANCEL);
@@ -912,11 +894,7 @@ pluma_externally_modified_saving_error_message_area_new (
 	gtk_box_pack_start (GTK_BOX (vbox), primary_label, TRUE, TRUE, 0);
 	gtk_label_set_use_markup (GTK_LABEL (primary_label), TRUE);
 	gtk_label_set_line_wrap (GTK_LABEL (primary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (primary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (primary_label), 0.0, 0.5);
-#endif
 	gtk_widget_set_can_focus (primary_label, TRUE);
 	gtk_label_set_selectable (GTK_LABEL (primary_label), TRUE);
 
@@ -930,11 +908,7 @@ pluma_externally_modified_saving_error_message_area_new (
 	gtk_label_set_use_markup (GTK_LABEL (secondary_label), TRUE);
 	gtk_label_set_line_wrap (GTK_LABEL (secondary_label), TRUE);
 	gtk_label_set_selectable (GTK_LABEL (secondary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (secondary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (secondary_label), 0.0, 0.5);
-#endif
 
 	gtk_widget_show_all (hbox_content);
 	set_contents (message_area, hbox_content);
@@ -982,10 +956,10 @@ pluma_no_backup_saving_error_message_area_new (const gchar  *uri,
 
 	message_area = gtk_info_bar_new ();
 	
-	info_bar_add_stock_button_with_text (GTK_INFO_BAR (message_area),
-					     _("S_ave Anyway"),
-					     GTK_STOCK_SAVE,
-					     GTK_RESPONSE_YES);
+	info_bar_add_icon_button_with_text (GTK_INFO_BAR (message_area),
+					    _("S_ave Anyway"),
+					    "document-save",
+					    GTK_RESPONSE_YES);
 	gtk_info_bar_add_button (GTK_INFO_BAR (message_area),
 				 _("D_on't Save"),
 				 GTK_RESPONSE_CANCEL);
@@ -1020,11 +994,7 @@ pluma_no_backup_saving_error_message_area_new (const gchar  *uri,
 	gtk_box_pack_start (GTK_BOX (vbox), primary_label, TRUE, TRUE, 0);
 	gtk_label_set_use_markup (GTK_LABEL (primary_label), TRUE);
 	gtk_label_set_line_wrap (GTK_LABEL (primary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (primary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (primary_label), 0.0, 0.5);
-#endif
 	gtk_widget_set_can_focus (primary_label, TRUE);
 	gtk_label_set_selectable (GTK_LABEL (primary_label), TRUE);
 
@@ -1040,11 +1010,7 @@ pluma_no_backup_saving_error_message_area_new (const gchar  *uri,
 	gtk_label_set_use_markup (GTK_LABEL (secondary_label), TRUE);
 	gtk_label_set_line_wrap (GTK_LABEL (secondary_label), TRUE);
 	gtk_label_set_selectable (GTK_LABEL (secondary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (secondary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (secondary_label), 0.0, 0.5);
-#endif
 
 	gtk_widget_show_all (hbox_content);
 	set_contents (message_area, hbox_content);
@@ -1215,13 +1181,16 @@ pluma_externally_modified_message_area_new (const gchar *uri,
 
 	message_area = gtk_info_bar_new ();
 	
-	info_bar_add_stock_button_with_text (GTK_INFO_BAR (message_area),
-					     _("_Reload"),
-					     GTK_STOCK_REFRESH,
-					     GTK_RESPONSE_OK);
-	gtk_info_bar_add_button (GTK_INFO_BAR (message_area),
-				 GTK_STOCK_CANCEL,
-				 GTK_RESPONSE_CANCEL);
+	info_bar_add_icon_button_with_text (GTK_INFO_BAR (message_area),
+					    _("_Reload"),
+					    "view-refresh",
+					    GTK_RESPONSE_OK);
+
+	gtk_button_set_image (GTK_BUTTON (gtk_info_bar_add_button (GTK_INFO_BAR (message_area),
+								   _("_Cancel"),
+								   GTK_RESPONSE_CANCEL)),
+			      gtk_image_new_from_icon_name ("process-stop", GTK_ICON_SIZE_BUTTON));
+
 	gtk_info_bar_set_message_type (GTK_INFO_BAR (message_area),
 				       GTK_MESSAGE_WARNING);
 

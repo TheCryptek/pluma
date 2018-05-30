@@ -36,6 +36,7 @@
 #include <sys/types.h>
 #include <string.h>
 
+#include <gdk/gdk.h>
 #include <glib/gi18n.h>
 #include <gio/gio.h>
 #include <gtk/gtk.h>
@@ -1418,11 +1419,13 @@ setup_toolbar_open_button (PlumaWindow *window,
 			  window);
 	
 	/* add the custom Open button to the toolbar */
-	open_button = gtk_menu_tool_button_new_from_stock (GTK_STOCK_OPEN);
+	open_button = gtk_menu_tool_button_new (gtk_image_new_from_icon_name ("document-open",
+									      GTK_ICON_SIZE_MENU),
+						_("Open a file"));
+
 	gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (open_button),
 				       toolbar_recent_menu);
 
-	gtk_tool_item_set_tooltip_text (open_button, _("Open a file"));
 	gtk_menu_tool_button_set_arrow_tooltip_text (GTK_MENU_TOOL_BUTTON (open_button),
 						     _("Open a recently used file"));
 
@@ -2821,25 +2824,16 @@ static void
 fullscreen_controls_show (PlumaWindow *window)
 {
 	GdkScreen *screen;
-#if GTK_CHECK_VERSION (3, 22, 0)
 	GdkDisplay *display;
-#endif
 	GdkRectangle fs_rect;
 	gint w, h;
 
 	screen = gtk_window_get_screen (GTK_WINDOW (window));
-#if GTK_CHECK_VERSION (3, 22, 0)
 	display = gdk_screen_get_display (screen);
 
 	gdk_monitor_get_geometry (gdk_display_get_monitor_at_window (display,
 								     gtk_widget_get_window (GTK_WIDGET (window))),
 				  &fs_rect);
-#else
-	gdk_screen_get_monitor_geometry (screen,
-					 gdk_screen_get_monitor_at_window (screen,
-									   gtk_widget_get_window (GTK_WIDGET (window))),
-					 &fs_rect);
-#endif
 
 	gtk_window_get_size (GTK_WINDOW (window->priv->fullscreen_controls), &w, &h);
 
@@ -2857,25 +2851,16 @@ run_fullscreen_animation (gpointer data)
 {
 	PlumaWindow *window = PLUMA_WINDOW (data);
 	GdkScreen *screen;
-#if GTK_CHECK_VERSION (3, 22, 0)
 	GdkDisplay *display;
-#endif
 	GdkRectangle fs_rect;
 	gint x, y;
 	
 	screen = gtk_window_get_screen (GTK_WINDOW (window));
-#if GTK_CHECK_VERSION (3, 22, 0)
 	display = gdk_screen_get_display (screen);
 
 	gdk_monitor_get_geometry (gdk_display_get_monitor_at_window (display,
 								     gtk_widget_get_window (GTK_WIDGET (window))),
 				  &fs_rect);
-#else
-	gdk_screen_get_monitor_geometry (screen,
-					 gdk_screen_get_monitor_at_window (screen,
-									   gtk_widget_get_window (GTK_WIDGET (window))),
-					 &fs_rect);
-#endif
 					 
 	gtk_window_get_position (GTK_WINDOW (window->priv->fullscreen_controls),
 				 &x, &y);
@@ -2945,23 +2930,14 @@ show_hide_fullscreen_toolbar (PlumaWindow *window,
 	{
 		GdkRectangle fs_rect;
 		GdkScreen *screen;
-#if GTK_CHECK_VERSION (3, 22, 0)
 		GdkDisplay *display;
-#endif
 
 		screen = gtk_window_get_screen (GTK_WINDOW (window));
-#if GTK_CHECK_VERSION (3, 22, 0)
 		display = gdk_screen_get_display (screen);
 
 		gdk_monitor_get_geometry (gdk_display_get_monitor_at_window (display,
 									     gtk_widget_get_window (GTK_WIDGET (window))),
 					  &fs_rect);
-#else
-		gdk_screen_get_monitor_geometry (screen,
-						 gdk_screen_get_monitor_at_window (screen,
-										   gtk_widget_get_window (GTK_WIDGET (window))),
-						 &fs_rect);
-#endif
 
 		if (show)
 			gtk_window_move (GTK_WINDOW (window->priv->fullscreen_controls),
@@ -3464,28 +3440,22 @@ show_notebook_popup_menu (GtkNotebook    *notebook,
 	g_return_val_if_fail (action != NULL, FALSE);
 	gtk_action_activate (action);
 #endif
-	if (event != NULL)
-	{
-		gtk_menu_popup (GTK_MENU (menu), NULL, NULL,
-				NULL, NULL,
-				event->button, event->time);
-	}
-	else
-	{
-		GtkWidget *tab;
-		GtkWidget *tab_label;
 
-		tab = GTK_WIDGET (pluma_window_get_active_tab (window));
-		g_return_val_if_fail (tab != NULL, FALSE);
+	GtkWidget *tab;
+	GtkWidget *tab_label;
 
-		tab_label = gtk_notebook_get_tab_label (notebook, tab);
+	tab = GTK_WIDGET (pluma_window_get_active_tab (window));
+	g_return_val_if_fail (tab != NULL, FALSE);
 
-		gtk_menu_popup (GTK_MENU (menu), NULL, NULL,
-				pluma_utils_menu_position_under_widget, tab_label,
-				0, gtk_get_current_event_time ());
+	tab_label = gtk_notebook_get_tab_label (notebook, tab);
 
-		gtk_menu_shell_select_first (GTK_MENU_SHELL (menu), FALSE);
-	}
+	gtk_menu_popup_at_widget (GTK_MENU (menu),
+	                          tab_label,
+	                          GDK_GRAVITY_SOUTH_WEST,
+	                          GDK_GRAVITY_NORTH_WEST,
+	                          (const GdkEvent*) event);
+
+	gtk_menu_shell_select_first (GTK_MENU_SHELL (menu), FALSE);
 
 	return TRUE;
 }
@@ -3512,6 +3482,23 @@ notebook_button_press_event (GtkNotebook    *notebook,
 		pluma_window_create_tab (window, TRUE);
 	}
 
+	return FALSE;
+}
+
+static gboolean
+notebook_scroll_event (GtkNotebook    *notebook,
+                       GdkEventScroll *event,
+                       PlumaWindow    *window)
+{
+	if (event->direction == GDK_SCROLL_UP || event->direction == GDK_SCROLL_LEFT)
+	{
+		gtk_notebook_prev_page (notebook);
+	}
+	else if (event->direction == GDK_SCROLL_DOWN || event->direction == GDK_SCROLL_RIGHT)
+	{
+		gtk_notebook_next_page (notebook);
+	}
+	
 	return FALSE;
 }
 
@@ -3648,10 +3635,10 @@ create_side_panel (PlumaWindow *window)
 				window);
 
 	documents_panel = pluma_documents_panel_new (window);
-	pluma_panel_add_item_with_stock_icon (PLUMA_PANEL (window->priv->side_panel),
-					      documents_panel,
-					      _("Documents"),
-					      "text-x-generic");
+	pluma_panel_add_item_with_icon (PLUMA_PANEL (window->priv->side_panel),
+					documents_panel,
+					_("Documents"),
+					"text-x-generic");
 }
 
 static void
@@ -3881,6 +3868,10 @@ connect_notebook_signals (PlumaWindow *window,
 			  "popup-menu",
 			  G_CALLBACK (notebook_popup_menu),
 			  window);
+	g_signal_connect (notebook,
+			  "scroll-event",
+			  G_CALLBACK (notebook_scroll_event),
+			  window);
 }
 
 static void
@@ -3893,7 +3884,8 @@ add_notebook (PlumaWindow *window,
 	                 TRUE);
 
 	gtk_widget_show (notebook);
-
+	
+	gtk_widget_add_events (notebook, GDK_SCROLL_MASK);
 	connect_notebook_signals (window, notebook);
 }
 

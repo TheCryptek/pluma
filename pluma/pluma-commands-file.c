@@ -464,8 +464,8 @@ _pluma_cmd_file_open (GtkAction   *action,
 						     GTK_WINDOW (window),
 						     GTK_FILE_CHOOSER_ACTION_OPEN,
 						     NULL,
-						     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-						     GTK_STOCK_OPEN, GTK_RESPONSE_OK,
+						     "process-stop", GTK_RESPONSE_CANCEL,
+						     "document-open", GTK_RESPONSE_OK,
 						     NULL);
 
 	g_object_set_data (G_OBJECT (window),
@@ -579,13 +579,14 @@ replace_read_only_file (GtkWindow *parent, GFile *file)
 						  _("Do you want to try to replace it "
 						    "with the one you are saving?"));
 
-	gtk_dialog_add_button (GTK_DIALOG (dialog),
-			       GTK_STOCK_CANCEL,
-			       GTK_RESPONSE_CANCEL);
+	pluma_dialog_add_button (GTK_DIALOG (dialog),
+				 _("_Cancel"),
+				 "process-stop",
+				 GTK_RESPONSE_CANCEL);
 
 	pluma_dialog_add_button (GTK_DIALOG (dialog),
 				 _("_Replace"),
-			  	 GTK_STOCK_SAVE_AS,
+			  	 "document-save-as",
 			  	 GTK_RESPONSE_YES);
 
 	gtk_dialog_set_default_response	(GTK_DIALOG (dialog),
@@ -757,8 +758,8 @@ file_save_as (PlumaTab    *tab,
 						     GTK_WINDOW (window),
 						     GTK_FILE_CHOOSER_ACTION_SAVE,
 						     NULL,
-						     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-						     GTK_STOCK_SAVE, GTK_RESPONSE_OK,
+						     "process-stop", GTK_RESPONSE_CANCEL,
+						     "document-save", GTK_RESPONSE_OK,
 						     NULL);
 
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (save_dialog),
@@ -1218,13 +1219,14 @@ revert_dialog (PlumaWindow   *window,
 
 	gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
 
-	gtk_dialog_add_button (GTK_DIALOG (dialog),
-			       GTK_STOCK_CANCEL,
-			       GTK_RESPONSE_CANCEL);
+	pluma_dialog_add_button (GTK_DIALOG (dialog),
+				 _("_Cancel"),
+				 "process-stop",
+				 GTK_RESPONSE_CANCEL);
 
 	pluma_dialog_add_button (GTK_DIALOG (dialog),
 				 _("_Revert"),
-				 GTK_STOCK_REVERT_TO_SAVED,
+				 "document-revert",
 				 GTK_RESPONSE_OK);
 
 	gtk_dialog_set_default_response	(GTK_DIALOG (dialog),

@@ -57,19 +57,15 @@ void		 pluma_utils_menu_position_under_widget (GtkMenu  *menu,
 							 gboolean *push_in,
 							 gpointer  user_data);
 
-void		 pluma_utils_menu_position_under_tree_view
-							(GtkMenu  *menu,
-							 gint     *x,
-							 gint     *y,
-							 gboolean *push_in,
-							 gpointer  user_data);
+void		 menu_popup_at_treeview_selection	(GtkWidget *menu,
+							 GtkWidget *treeview);
 
-GtkWidget	*pluma_gtk_button_new_with_stock_icon	(const gchar *label,
-							 const gchar *stock_id);
+GtkWidget	*pluma_gtk_button_new_with_icon		(const gchar *label,
+							 const gchar *icon_name);
 
 GtkWidget	*pluma_dialog_add_button		(GtkDialog   *dialog,
 							 const gchar *text,
-							 const gchar *stock_id, 
+							 const gchar *icon_name, 
 							 gint         response_id);
 
 gchar		*pluma_utils_escape_underscores		(const gchar *text,
@@ -159,6 +155,10 @@ pluma_gtk_text_iter_regex_search (const GtkTextIter *iter,
 				  const GtkTextIter *limit,
 				  gboolean forward_search,
 				  gchar            **replace_text);
+
+GtkWidget *
+pluma_image_menu_item_new_from_pixbuf (GdkPixbuf   *icon_pixbuf,
+				       const gchar *label_name);
 
 G_END_DECLS
 

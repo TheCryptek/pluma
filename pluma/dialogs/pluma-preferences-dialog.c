@@ -539,17 +539,17 @@ default_font_font_checkbutton_toggled (GtkToggleButton        *button,
 }
 
 static void
-editor_font_button_font_set (GtkFontButton          *font_button,
+editor_font_button_font_set (GtkFontChooser         *font_button,
 			     PlumaPreferencesDialog *dlg)
 {
 	const gchar *font_name;
 
 	pluma_debug (DEBUG_PREFS);
 
-	g_return_if_fail (font_button == GTK_FONT_BUTTON (dlg->priv->font_button));
+	g_return_if_fail (font_button == GTK_FONT_CHOOSER (dlg->priv->font_button));
 
 	/* FIXME: Can this fail? Gtk docs are a bit terse... 21-02-2004 pbor */
-	font_name = gtk_font_button_get_font_name (font_button);
+	font_name = gtk_font_chooser_get_font (font_button);
 	if (!font_name)
 	{
 		g_warning ("Could not get font name");
@@ -594,8 +594,8 @@ setup_font_colors_page_font_section (PlumaPreferencesDialog *dlg)
 	editor_font = pluma_prefs_manager_get_editor_font ();
 	if (editor_font != NULL)
 	{
-		gtk_font_button_set_font_name (GTK_FONT_BUTTON (dlg->priv->font_button),
-					       editor_font);
+		gtk_font_chooser_set_font (GTK_FONT_CHOOSER (dlg->priv->font_button),
+					   editor_font);
 		g_free (editor_font);
 	}
 
@@ -793,6 +793,59 @@ add_scheme_chooser_response_cb (GtkDialog              *chooser,
 
 	set_buttons_sensisitivity_according_to_scheme (dlg, scheme_id);
 }
+
+static GtkWidget *
+scheme_file_chooser_dialog_new_valist (const gchar          *title,
+				       GtkWindow            *parent,
+				       GtkFileChooserAction  action,
+				       const gchar          *first_button_text,
+				       va_list               varargs)
+{
+	GtkWidget *result;
+	const char *button_text = first_button_text;
+	gint response_id;
+
+	result = g_object_new (GTK_TYPE_FILE_CHOOSER_DIALOG,
+			       "title", title,
+			       "action", action,
+			       NULL);
+
+	if (parent)
+		gtk_window_set_transient_for (GTK_WINDOW (result), parent);
+
+	while (button_text)
+		{
+			response_id = va_arg (varargs, gint);
+
+			if (g_strcmp0 (button_text, "process-stop") == 0)
+				pluma_dialog_add_button (GTK_DIALOG (result), _("_Cancel"), button_text, response_id);
+			else
+				gtk_dialog_add_button (GTK_DIALOG (result), button_text, response_id);
+
+			button_text = va_arg (varargs, const gchar *);
+		}
+
+	return result;
+}
+
+static GtkWidget *
+scheme_file_chooser_dialog_new (const gchar          *title,
+				GtkWindow            *parent,
+				GtkFileChooserAction  action,
+				const gchar          *first_button_text,
+				...)
+{
+	GtkWidget *result;
+	va_list varargs;
+
+	va_start (varargs, first_button_text);
+	result = scheme_file_chooser_dialog_new_valist (title, parent, action,
+							first_button_text,
+							varargs);
+	va_end (varargs);
+
+	return result;
+}
 			 
 static void
 install_scheme_clicked (GtkButton              *button,
@@ -807,15 +860,15 @@ install_scheme_clicked (GtkButton              *button,
 		return;
 	}
 
-	chooser = gtk_file_chooser_dialog_new (_("Add Scheme"),
-					       GTK_WINDOW (dlg),
-					       GTK_FILE_CHOOSER_ACTION_OPEN,
-					       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					       NULL);
+	chooser = scheme_file_chooser_dialog_new (_("Add Scheme"),
+						  GTK_WINDOW (dlg),
+						  GTK_FILE_CHOOSER_ACTION_OPEN,
+						  "process-stop", GTK_RESPONSE_CANCEL,
+						  NULL);
 
 	pluma_dialog_add_button (GTK_DIALOG (chooser), 
 				 _("A_dd Scheme"),
-				 GTK_STOCK_ADD,
+				 "list-add",
 				 GTK_RESPONSE_ACCEPT);
 
 	gtk_window_set_destroy_with_parent (GTK_WINDOW (chooser), TRUE);
@@ -1014,6 +1067,9 @@ setup_font_colors_page_style_scheme_section (PlumaPreferencesDialog *dlg)
 	gtk_tree_selection_set_mode (selection, GTK_SELECTION_BROWSE);
 
 	def_id = populate_color_scheme_list (dlg, NULL);
+
+	gtk_button_set_image (GTK_BUTTON (dlg->priv->uninstall_scheme_button),
+			      gtk_image_new_from_icon_name ("list-remove", GTK_ICON_SIZE_BUTTON));
 	
 	/* Connect signals */
 	g_signal_connect (dlg->priv->schemes_treeview,
@@ -1078,12 +1134,8 @@ pluma_preferences_dialog_init (PlumaPreferencesDialog *dlg)
 
 	dlg->priv = PLUMA_PREFERENCES_DIALOG_GET_PRIVATE (dlg);
 
-	gtk_dialog_add_buttons (GTK_DIALOG (dlg),
-				GTK_STOCK_CLOSE,
-				GTK_RESPONSE_CLOSE,
-				GTK_STOCK_HELP,
-				GTK_RESPONSE_HELP,
-				NULL);
+	pluma_dialog_add_button (GTK_DIALOG (dlg), _("_Close"), "window-close", GTK_RESPONSE_CLOSE);
+	pluma_dialog_add_button (GTK_DIALOG (dlg), _("_Help"), "help-browser", GTK_RESPONSE_HELP);
 
 	gtk_window_set_title (GTK_WINDOW (dlg), _("Pluma Preferences"));
 	gtk_window_set_resizable (GTK_WINDOW (dlg), FALSE);
@@ -1092,8 +1144,6 @@ pluma_preferences_dialog_init (PlumaPreferencesDialog *dlg)
 	/* HIG defaults */
 	gtk_container_set_border_width (GTK_CONTAINER (dlg), 5);
 	gtk_box_set_spacing (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dlg))), 2); /* 2 * 5 + 2 = 12 */
-	gtk_container_set_border_width (GTK_CONTAINER (gtk_dialog_get_action_area (GTK_DIALOG (dlg))), 5);
-	gtk_box_set_spacing (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (dlg))), 6);
 	
 	g_signal_connect (dlg,
 			  "response",

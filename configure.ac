@@ -3,8 +3,8 @@ dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.63.2)
 
 m4_define(pluma_major_version, 1)
-m4_define(pluma_minor_version, 19)
-m4_define(pluma_micro_version, 3)
+m4_define(pluma_minor_version, 21)
+m4_define(pluma_micro_version, 0)
 m4_define(pluma_version, pluma_major_version.pluma_minor_version.pluma_micro_version)
 
 AC_INIT([pluma], [pluma_version],
@@ -47,10 +47,6 @@ AC_SUBST(ACLOCAL_AMFLAGS, "$ACLOCAL_FLAGS -I m4")
 dnl toolbar style for GSettings schemas
 TOOLBAR_STYLE="PLUMA_TOOLBAR_SYSTEM"
 AC_SUBST(TOOLBAR_STYLE)
-
-# GLib min/max required versions
-AC_DEFINE([GLIB_VERSION_MIN_REQUIRED], [GLIB_VERSION_2_36],
-	[Warn on use of APIs deprecated before GLib 2.36])
 
 dnl ===============================================================
 dnl Expanded dirs
@@ -146,16 +142,16 @@ fi
 
 AM_CONDITIONAL(ENABLE_ENCHANT, test x"$enable_enchant" = "xyes")
 
-GTK_REQUIRED=3.14.0
+GTK_REQUIRED=3.22.0
 GTKSOURCEVIEW_REQUIRED=3.0.0
 
 PKG_CHECK_MODULES(GMODULE,gmodule-2.0,[GMODULE_ADD="gmodule-2.0"],[GMODULE_ADD=""])
 PKG_CHECK_MODULES(PLUMA, [
 	libxml-2.0 >= 2.5.0
-	glib-2.0 >= 2.36.0
+	glib-2.0 >= 2.50.0
 	$GMODULE_ADD
 	gthread-2.0 >= 2.13.0
-	gio-2.0 >= 2.37.0
+	gio-2.0 >= 2.50.0
 	gtk+-3.0 >= $GTK_REQUIRED
 	gtksourceview-3.0 >= $GTKSOURCEVIEW_REQUIRED
 	libpeas-1.0 >= 1.2.0

@@ -142,7 +142,7 @@ set_logout_mode (PlumaCloseConfirmationDialog *dlg,
 
 		pluma_dialog_add_button (GTK_DIALOG (dlg),
 					 _("_Cancel Logout"),
-					 GTK_STOCK_CANCEL,
+					 "process-stop",
 					 GTK_RESPONSE_CANCEL);
 	}
 	else
@@ -151,8 +151,10 @@ set_logout_mode (PlumaCloseConfirmationDialog *dlg,
 				       _("Close _without Saving"),
 				       GTK_RESPONSE_NO);
 
-		gtk_dialog_add_button (GTK_DIALOG (dlg),
-				       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+		pluma_dialog_add_button (GTK_DIALOG (dlg),
+					 _("_Cancel"),
+					 "process-stop",
+					 GTK_RESPONSE_CANCEL);
 	}
 	
 	if (dlg->priv->disable_save_to_disk)
@@ -162,7 +164,7 @@ set_logout_mode (PlumaCloseConfirmationDialog *dlg,
 	}
 	else
 	{
-		const gchar *stock_id = GTK_STOCK_SAVE;
+		const gchar *icon_id = "document-save";
 		
 		if (GET_MODE (dlg->priv) == SINGLE_DOC_MODE)
 		{
@@ -172,12 +174,19 @@ set_logout_mode (PlumaCloseConfirmationDialog *dlg,
 			
 			if (pluma_document_get_readonly (doc) || 
 			    pluma_document_is_untitled (doc))
-				stock_id = GTK_STOCK_SAVE_AS;
+				icon_id = "document-save-as";
 		}
 
-		gtk_dialog_add_button (GTK_DIALOG (dlg),
-				       stock_id, 
-				       GTK_RESPONSE_YES);
+		if (g_strcmp0 (icon_id, "document-save") == 0)
+			pluma_dialog_add_button (GTK_DIALOG (dlg),
+						 _("_Save"),
+						 icon_id,
+						 GTK_RESPONSE_YES);
+		else
+			pluma_dialog_add_button (GTK_DIALOG (dlg),
+						 _("Save _As"),
+						 icon_id,
+						 GTK_RESPONSE_YES);
 
 		gtk_dialog_set_default_response	(GTK_DIALOG (dlg), 
 						 GTK_RESPONSE_YES);
@@ -506,11 +515,7 @@ build_single_doc_dialog (PlumaCloseConfirmationDialog *dlg)
 	primary_label = gtk_label_new (NULL);
 	gtk_label_set_line_wrap (GTK_LABEL (primary_label), TRUE);
 	gtk_label_set_use_markup (GTK_LABEL (primary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (primary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (primary_label), 0.0, 0.5);
-#endif
 	gtk_label_set_selectable (GTK_LABEL (primary_label), TRUE);
 	gtk_widget_set_can_focus (GTK_WIDGET (primary_label), FALSE);
 	gtk_label_set_max_width_chars (GTK_LABEL (primary_label), 72);
@@ -544,11 +549,7 @@ build_single_doc_dialog (PlumaCloseConfirmationDialog *dlg)
 	secondary_label = gtk_label_new (str);
 	g_free (str);
 	gtk_label_set_line_wrap (GTK_LABEL (secondary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (secondary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (secondary_label), 0.0, 0.5);
-#endif
 	gtk_label_set_selectable (GTK_LABEL (secondary_label), TRUE);
 	gtk_widget_set_can_focus (GTK_WIDGET (secondary_label), FALSE);
 	gtk_label_set_max_width_chars (GTK_LABEL (secondary_label), 72);
@@ -706,11 +707,7 @@ build_multiple_docs_dialog (PlumaCloseConfirmationDialog *dlg)
 	primary_label = gtk_label_new (NULL);
 	gtk_label_set_line_wrap (GTK_LABEL (primary_label), TRUE);
 	gtk_label_set_use_markup (GTK_LABEL (primary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (primary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (primary_label), 0.0, 0.5);
-#endif
 	gtk_label_set_selectable (GTK_LABEL (primary_label), TRUE);
 	gtk_widget_set_can_focus (GTK_WIDGET (primary_label), FALSE);
 	gtk_label_set_max_width_chars (GTK_LABEL (primary_label), 72);
@@ -748,11 +745,7 @@ build_multiple_docs_dialog (PlumaCloseConfirmationDialog *dlg)
 	gtk_box_pack_start (GTK_BOX (vbox2), select_label, FALSE, FALSE, 0);
 	gtk_label_set_line_wrap (GTK_LABEL (select_label), TRUE);
 	gtk_label_set_max_width_chars (GTK_LABEL (select_label), 72);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (select_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (select_label), 0.0, 0.5);
-#endif
 	gtk_label_set_selectable (GTK_LABEL (select_label), TRUE);
 	gtk_widget_set_can_focus (GTK_WIDGET (select_label), FALSE);
 
@@ -776,11 +769,7 @@ build_multiple_docs_dialog (PlumaCloseConfirmationDialog *dlg)
 
 	gtk_box_pack_start (GTK_BOX (vbox2), secondary_label, FALSE, FALSE, 0);
 	gtk_label_set_line_wrap (GTK_LABEL (secondary_label), TRUE);
-#if GTK_CHECK_VERSION (3, 16, 0)
 	gtk_label_set_xalign (GTK_LABEL (secondary_label), 0.0);
-#else
-	gtk_misc_set_alignment (GTK_MISC (secondary_label), 0.0, 0.5);
-#endif
 	gtk_label_set_selectable (GTK_LABEL (secondary_label), TRUE);
 	gtk_widget_set_can_focus (GTK_WIDGET (secondary_label), FALSE);
 	gtk_label_set_max_width_chars (GTK_LABEL (secondary_label), 72);

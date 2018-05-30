@@ -309,14 +309,9 @@ pluma_encodings_dialog_init (PlumaEncodingsDialog *dlg)
 
 	dlg->priv = PLUMA_ENCODINGS_DIALOG_GET_PRIVATE (dlg);
 	
-	gtk_dialog_add_buttons (GTK_DIALOG (dlg),
-				GTK_STOCK_CANCEL, 
-				GTK_RESPONSE_CANCEL,
-				GTK_STOCK_OK,
-				GTK_RESPONSE_OK,
-				GTK_STOCK_HELP,
-				GTK_RESPONSE_HELP,
-				NULL);
+	pluma_dialog_add_button (GTK_DIALOG (dlg), _("_Cancel"), "process-stop", GTK_RESPONSE_CANCEL);
+	pluma_dialog_add_button (GTK_DIALOG (dlg), _("_OK"), "gtk-ok", GTK_RESPONSE_OK);
+	pluma_dialog_add_button (GTK_DIALOG (dlg), _("_Help"), "help-browser", GTK_RESPONSE_HELP);
 
 	gtk_window_set_title (GTK_WINDOW (dlg), _("Character Encodings"));
 	gtk_window_set_default_size (GTK_WINDOW (dlg), 650, 400);
@@ -325,9 +320,6 @@ pluma_encodings_dialog_init (PlumaEncodingsDialog *dlg)
 	gtk_container_set_border_width (GTK_CONTAINER (dlg), 5);
 	gtk_box_set_spacing (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dlg))),
 			     2); /* 2 * 5 + 2 = 12 */
-	gtk_container_set_border_width (GTK_CONTAINER (gtk_dialog_get_action_area (GTK_DIALOG (dlg))),
-					5);
-	gtk_box_set_spacing (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (dlg))), 6);
 
 	gtk_dialog_set_default_response (GTK_DIALOG (dlg),
 					 GTK_RESPONSE_OK);
@@ -365,6 +357,9 @@ pluma_encodings_dialog_init (PlumaEncodingsDialog *dlg)
 			    content, TRUE, TRUE, 0);
 	g_object_unref (content);
 	gtk_container_set_border_width (GTK_CONTAINER (content), 5);			     
+
+	gtk_button_set_image (GTK_BUTTON (dlg->priv->add_button), gtk_image_new_from_icon_name ("list-add", GTK_ICON_SIZE_BUTTON));
+	gtk_button_set_image (GTK_BUTTON (dlg->priv->remove_button), gtk_image_new_from_icon_name ("list-remove", GTK_ICON_SIZE_BUTTON));
 
 	g_signal_connect (dlg->priv->add_button,
 			  "clicked",

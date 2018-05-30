@@ -330,18 +330,12 @@ pluma_search_dialog_init (PlumaSearchDialog *dlg)
 	gtk_window_set_resizable (GTK_WINDOW (dlg), FALSE);
 	gtk_window_set_destroy_with_parent (GTK_WINDOW (dlg), TRUE);
 
-	gtk_dialog_add_buttons (GTK_DIALOG (dlg),
-				GTK_STOCK_CLOSE, GTK_RESPONSE_CANCEL,
-				NULL);
+	pluma_dialog_add_button (GTK_DIALOG (dlg), _("_Close"), "window-close", GTK_RESPONSE_CANCEL);
 				
 	/* HIG defaults */
 	gtk_container_set_border_width (GTK_CONTAINER (dlg), 5);
 	gtk_box_set_spacing (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dlg))),
 			     2); /* 2 * 5 + 2 = 12 */
-	gtk_container_set_border_width (GTK_CONTAINER (gtk_dialog_get_action_area (GTK_DIALOG (dlg))),
-					5);
-	gtk_box_set_spacing (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (dlg))),
-			     6);
 
 	file = pluma_dirs_get_ui_file ("pluma-search-dialog.ui");
 
@@ -416,10 +410,12 @@ pluma_search_dialog_init (PlumaSearchDialog *dlg)
 	gtk_label_set_mnemonic_widget (GTK_LABEL (dlg->priv->replace_label),
 				       dlg->priv->replace_entry);
 
-	dlg->priv->find_button = gtk_button_new_from_stock (GTK_STOCK_FIND);
+	dlg->priv->find_button = gtk_button_new_with_mnemonic (_("_Find"));
+	gtk_button_set_image (GTK_BUTTON (dlg->priv->find_button), gtk_image_new_from_icon_name ("edit-find", GTK_ICON_SIZE_BUTTON));
+
 	dlg->priv->replace_all_button = gtk_button_new_with_mnemonic (_("Replace _All"));
-	dlg->priv->replace_button = pluma_gtk_button_new_with_stock_icon (_("_Replace"),
-									  GTK_STOCK_FIND_AND_REPLACE);
+	dlg->priv->replace_button = pluma_gtk_button_new_with_icon (_("_Replace"),
+								    "edit-find-replace");
 
 	gtk_dialog_add_action_widget (GTK_DIALOG (dlg),
 				      dlg->priv->replace_all_button,
